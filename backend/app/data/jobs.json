@@ -1,0 +1,97 @@
+[
+  {
+    "id": "frontend-developer",
+    "title": "Frontend Developer",
+    "description": "Build responsive user interfaces using React, JavaScript, TypeScript, HTML, CSS, accessibility, state management, API integration, testing, performance optimization, Git, and modern frontend tooling.",
+    "skills": [
+      "React",
+      "JavaScript",
+      "TypeScript",
+      "HTML",
+      "CSS",
+      "Responsive Design",
+      "Accessibility",
+      "API Integration",
+      "Git",
+      "Testing",
+      "Jest",
+      "Performance Optimization"
+    ]
+  },
+  {
+    "id": "backend-developer",
+    "title": "Backend Developer",
+    "description": "Develop reliable backend services using Python, FastAPI, Flask, REST APIs, SQL, databases, authentication, testing, Docker, cloud deployment, Git, and scalable system design.",
+    "skills": [
+      "Python",
+      "FastAPI",
+      "Flask",
+      "REST API",
+      "SQL",
+      "Databases",
+      "Authentication",
+      "Testing",
+      "Docker",
+      "Cloud",
+      "Git",
+      "System Design"
+    ]
+  },
+  {
+    "id": "data-analyst",
+    "title": "Data Analyst",
+    "description": "Analyze business data using Python, SQL, Excel, statistics, dashboards, Power BI, Tableau, data cleaning, visualization, reporting, and stakeholder communication.",
+    "skills": [
+      "Python",
+      "SQL",
+      "Excel",
+      "Statistics",
+      "Power BI",
+      "Tableau",
+      "Data Cleaning",
+      "Data Visualization",
+      "Dashboards",
+      "Reporting",
+      "Communication"
+    ]
+  },
+  {
+    "id": "machine-learning-engineer",
+    "title": "Machine Learning Engineer",
+    "description": "Build machine learning systems using Python, scikit-learn, pandas, NumPy, model training, feature engineering, evaluation, NLP, deep learning, APIs, MLOps, and deployment.",
+    "skills": [
+      "Python",
+      "Machine Learning",
+      "scikit-learn",
+      "Pandas",
+      "NumPy",
+      "Feature Engineering",
+      "Model Evaluation",
+      "NLP",
+      "Deep Learning",
+      "APIs",
+      "MLOps",
+      "Deployment"
+    ]
+  },
+  {
+    "id": "full-stack-developer",
+    "title": "Full Stack Developer",
+    "description": "Create complete web applications using React, JavaScript, Python, FastAPI, REST APIs, SQL, databases, authentication, testing, Git, deployment, and responsive UI design.",
+    "skills": [
+      "React",
+      "JavaScript",
+      "Python",
+      "FastAPI",
+      "REST API",
+      "SQL",
+      "Databases",
+      "Authentication",
+      "Testing",
+      "Git",
+      "Deployment",
+      "Responsive Design"
+    ]
+  }
+]
+

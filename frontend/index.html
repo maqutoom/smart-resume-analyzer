@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Resume Analyzer</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        min-height: 100vh;
+        background: #f5f7f9;
+        color: #17202a;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+        padding: 34px 18px;
+        background: linear-gradient(180deg, #eef6f8, #f5f7f9);
+      }
+
+      .workspace {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+      }
+
+      .intro {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        align-items: end;
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: #0d766e;
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 4px 0 10px;
+        font-size: clamp(2rem, 5vw, 4.4rem);
+        line-height: 1;
+      }
+
+      .intro p {
+        max-width: 650px;
+        margin: 0;
+        color: #4c5f70;
+        font-size: 1.05rem;
+      }
+
+      .metric-strip {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: end;
+      }
+
+      .metric-strip span,
+      .skill {
+        border: 1px solid #c9e6df;
+        border-radius: 999px;
+        background: #edf8f5;
+        color: #0b605a;
+        font-size: 0.85rem;
+        font-weight: 800;
+        padding: 8px 10px;
+      }
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1.25fr);
+        gap: 18px;
+      }
+
+      .panel {
+        border: 1px solid #d9e3ea;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 18px 50px rgba(35, 52, 67, 0.1);
+        padding: 22px;
+      }
+
+      .panel-heading {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      .icon-mark {
+        display: inline-grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        background: #edf8f5;
+        color: #0d766e;
+        font-weight: 900;
+      }
+
+      h2,
+      h3 {
+        margin: 0;
+      }
+
+      .panel-heading p,
+      .empty-state p,
+      .muted {
+        margin: 4px 0 0;
+        color: #66798a;
+      }
+
+      .upload-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 54px;
+        border: 1px dashed #8496a6;
+        border-radius: 8px;
+        background: #f7fafc;
+        color: #34495e;
+        cursor: pointer;
+        font-weight: 700;
+        padding: 14px;
+      }
+
+      .upload-box input {
+        display: none;
+      }
+
+      label.textarea-label {
+        display: block;
+        color: #34495e;
+        font-size: 0.88rem;
+        font-weight: 800;
+        margin: 18px 0 8px;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 330px;
+        resize: vertical;
+        border: 1px solid #c7d0d8;
+        border-radius: 8px;
+        color: #17202a;
+        background: #ffffff;
+        font: inherit;
+        line-height: 1.5;
+        padding: 14px;
+      }
+
+      button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        min-height: 48px;
+        border: 0;
+        border-radius: 8px;
+        background: #0d766e;
+        color: white;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 800;
+        margin-top: 16px;
+      }
+
+      button:disabled {
+        cursor: wait;
+        opacity: 0.72;
+      }
+
+      .error {
+        margin: 12px 0 0;
+        color: #b42318;
+        font-weight: 700;
+      }
+
+      .empty-state {
+        display: grid;
+        place-items: center;
+        align-content: center;
+        min-height: 560px;
+        text-align: center;
+        color: #51687a;
+      }
+
+      .score-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: center;
+        border-bottom: 1px solid #e2e8ee;
+        padding-bottom: 18px;
+      }
+
+      .score-badge {
+        display: grid;
+        place-items: center;
+        width: 132px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 10px solid #3b82c4;
+        background: #fff;
+      }
+
+      .score-badge strong {
+        font-size: 1.85rem;
+        line-height: 1;
+      }
+
+      .section-block {
+        margin-top: 20px;
+      }
+
+      .match-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .match-row {
+        display: grid;
+        grid-template-columns: minmax(150px, 1.1fr) minmax(120px, 1fr) 58px;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid #e2e8ee;
+        border-radius: 8px;
+        padding: 12px;
+      }
+
+      .bar-track {
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e5ebf0;
+      }
+
+      .bar-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #0d766e, #4f9fcb);
+      }
+
+      .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
+      .skill-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .missing .skill {
+        border-color: #f1d3aa;
+        background: #fff7e8;
+        color: #895b0f;
+      }
+
+      .suggestions {
+        margin: 10px 0 0;
+        padding-left: 20px;
+        color: #34495e;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 900px) {
+        .intro,
+        .score-header {
+          align-items: start;
+          flex-direction: column;
+        }
+
+        .metric-strip {
+          justify-content: start;
+        }
+
+        .content-grid,
+        .two-column,
+        .match-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <div class="intro">
+          <div>
+            <p class="eyebrow">AI Resume Project</p>
+            <h1>Smart Resume Analyzer & Job Matcher</h1>
+            <p>Upload or paste a resume to compare it with job roles and get a clear percentage match.</p>
+          </div>
+          <div class="metric-strip">
+            <span>Role match</span>
+            <span>Skill gaps</span>
+            <span>Resume tips</span>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <form class="panel" id="resumeForm">
+            <div class="panel-heading">
+              <span class="icon-mark">CV</span>
+              <div>
+                <h2>Resume Input</h2>
+                <p>Use PDF, TXT, or pasted text.</p>
+              </div>
+            </div>
+
+            <label class="upload-box">
+              <span>Upload</span>
+              <span id="fileName">Choose resume file</span>
+              <input id="resumeFile" type="file" accept=".pdf,.txt,text/plain,application/pdf" />
+            </label>
+
+            <label class="textarea-label" for="resumeText">Paste resume text</label>
+            <textarea id="resumeText">Frontend Developer with experience building responsive React applications.
+Skills include React, JavaScript, HTML, CSS, Git, REST API integration, responsive design, and UI debugging.
+Built projects using reusable components, form validation, and dashboard layouts.</textarea>
+
+            <p class="error" id="errorMessage" hidden></p>
+            <button id="analyzeButton" type="submit">Analyze Resume</button>
+          </form>
+
+          <section class="panel" id="resultsPanel">
+            <div class="empty-state">
+              <span class="icon-mark">%</span>
+              <h2>Your match report will appear here</h2>
+              <p>Try the sample resume, then replace it with your own details.</p>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const API_BASE_URL = "http://127.0.0.1:8000";
+      const form = document.getElementById("resumeForm");
+      const fileInput = document.getElementById("resumeFile");
+      const fileName = document.getElementById("fileName");
+      const resumeText = document.getElementById("resumeText");
+      const resultsPanel = document.getElementById("resultsPanel");
+      const errorMessage = document.getElementById("errorMessage");
+      const analyzeButton = document.getElementById("analyzeButton");
+
+      fileInput.addEventListener("change", () => {
+        fileName.textContent = fileInput.files[0] ? fileInput.files[0].name : "Choose resume file";
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        errorMessage.hidden = true;
+        analyzeButton.disabled = true;
+        analyzeButton.textContent = "Analyzing...";
+
+        const formData = new FormData();
+        if (fileInput.files[0]) {
+          formData.append("resume_file", fileInput.files[0]);
+        } else {
+          formData.append("resume_text", resumeText.value);
+        }
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/analyze`, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.detail || "Resume analysis failed.");
+          }
+
+          const result = await response.json();
+          renderResults(result);
+        } catch (error) {
+          errorMessage.textContent = error.message;
+          errorMessage.hidden = false;
+        } finally {
+          analyzeButton.disabled = false;
+          analyzeButton.textContent = "Analyze Resume";
+        }
+      });
+
+      function skillList(skills) {
+        if (!skills.length) return "<p class='muted'>No direct skill matches found.</p>";
+        return skills.map((skill) => `<span class="skill">${escapeHtml(skill)}</span>`).join("");
+      }
+
+      function renderResults(result) {
+        resultsPanel.innerHTML = `
+          <div class="score-header">
+            <div>
+              <p class="eyebrow">Best Fit</p>
+              <h2>${escapeHtml(result.best_role)}</h2>
+              <p class="muted">${escapeHtml(result.match_label)}</p>
+            </div>
+            <div class="score-badge">
+              <strong>${result.match_percentage}%</strong>
+              <span>Match</span>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>All Role Matches</h3>
+            <div class="match-list">
+              ${result.all_matches
+                .map(
+                  (match) => `
+                    <div class="match-row">
+                      <div>
+                        <strong>${escapeHtml(match.title)}</strong>
+                        <p class="muted">${match.matched_skills.length} skills matched</p>
+                      </div>
+                      <div class="bar-track">
+                        <div class="bar-fill" style="width: ${match.match_percentage}%"></div>
+                      </div>
+                      <b>${match.match_percentage}%</b>
+                    </div>
+                  `,
+                )
+                .join("")}
+            </div>
+          </div>
+
+          <div class="two-column">
+            <div class="section-block">
+              <h3>Matched Skills</h3>
+              <div class="skill-cloud">${skillList(result.matched_skills)}</div>
+            </div>
+            <div class="section-block missing">
+              <h3>Missing Skills</h3>
+              <div class="skill-cloud">${skillList(result.missing_skills.slice(0, 8))}</div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>Resume Improvements</h3>
+            <ul class="suggestions">
+              ${result.suggestions.map((suggestion) => `<li>${escapeHtml(suggestion)}</li>`).join("")}
+            </ul>
+          </div>
+        `;
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+    </script>
+  </body>
+</html>
