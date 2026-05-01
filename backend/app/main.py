@@ -1,7 +1,7 @@
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
-from .matcher import match_resume_to_jobs
+from .matcher import match_resume_to_custom_job, match_resume_to_jobs
 from .resume_parser import extract_text_from_upload
 from .suggestions import build_suggestions, score_label
 
@@ -26,6 +26,8 @@ def health_check() -> dict[str, str]:
 async def analyze_resume(
     resume_file: UploadFile | None = File(default=None),
     resume_text: str | None = Form(default=None),
+    job_position: str | None = Form(default=None),
+    manual_skills: str | None = Form(default=None),
 ) -> dict:
     extracted_text = ""
 
@@ -42,6 +44,29 @@ async def analyze_resume(
     if not extracted_text:
         raise HTTPException(status_code=400, detail="Please upload a resume or paste resume text.")
 
+    if manual_skills and manual_skills.strip():
+        try:
+            custom_match = match_resume_to_custom_job(
+                extracted_text,
+                job_position or "Custom Job Position",
+                manual_skills,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+        return {
+            "mode": "custom",
+            "best_role": custom_match["title"],
+            "match_percentage": custom_match["match_percentage"],
+            "match_label": score_label(custom_match["match_percentage"]),
+            "matched_skills": custom_match["matched_skills"],
+            "missing_skills": custom_match["missing_skills"],
+            "required_skills": custom_match["required_skills"],
+            "suggestions": build_suggestions(custom_match, extracted_text),
+            "all_matches": [custom_match],
+            "resume_word_count": len(extracted_text.split()),
+        }
+
     matches = match_resume_to_jobs(extracted_text)
     best_match = matches[0]
 
@@ -55,4 +80,3 @@ async def analyze_resume(
         "all_matches": matches,
         "resume_word_count": len(extracted_text.split()),
     }
-

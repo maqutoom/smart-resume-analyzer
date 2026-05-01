@@ -136,6 +136,23 @@
         padding: 14px;
       }
 
+      .field-input {
+        width: 100%;
+        min-height: 46px;
+        border: 1px solid #c7d0d8;
+        border-radius: 8px;
+        color: #17202a;
+        background: #ffffff;
+        font: inherit;
+        padding: 12px 14px;
+      }
+
+      .helper-text {
+        margin: 6px 0 0;
+        color: #66798a;
+        font-size: 0.86rem;
+      }
+
       .upload-box input {
         display: none;
       }
@@ -159,6 +176,10 @@
         font: inherit;
         line-height: 1.5;
         padding: 14px;
+      }
+
+      .skills-textarea {
+        min-height: 110px;
       }
 
       button {
@@ -311,6 +332,7 @@
           </div>
           <div class="metric-strip">
             <span>Role match</span>
+            <span>Manual skills</span>
             <span>Skill gaps</span>
             <span>Resume tips</span>
           </div>
@@ -337,6 +359,22 @@
 Skills include React, JavaScript, HTML, CSS, Git, REST API integration, responsive design, and UI debugging.
 Built projects using reusable components, form validation, and dashboard layouts.</textarea>
 
+            <label class="textarea-label" for="jobPosition">Target job position</label>
+            <input
+              class="field-input"
+              id="jobPosition"
+              placeholder="Example: Frontend Developer"
+              type="text"
+            />
+
+            <label class="textarea-label" for="manualSkills">Required skills for this job</label>
+            <textarea
+              class="skills-textarea"
+              id="manualSkills"
+              placeholder="Example: React, TypeScript, JavaScript, HTML, CSS, Jest, API Integration"
+            ></textarea>
+            <p class="helper-text">Leave these fields empty to use the built-in job-role matcher.</p>
+
             <p class="error" id="errorMessage" hidden></p>
             <button id="analyzeButton" type="submit">Analyze Resume</button>
           </form>
@@ -358,6 +396,8 @@ Built projects using reusable components, form validation, and dashboard layouts
       const fileInput = document.getElementById("resumeFile");
       const fileName = document.getElementById("fileName");
       const resumeText = document.getElementById("resumeText");
+      const jobPosition = document.getElementById("jobPosition");
+      const manualSkills = document.getElementById("manualSkills");
       const resultsPanel = document.getElementById("resultsPanel");
       const errorMessage = document.getElementById("errorMessage");
       const analyzeButton = document.getElementById("analyzeButton");
@@ -378,6 +418,9 @@ Built projects using reusable components, form validation, and dashboard layouts
         } else {
           formData.append("resume_text", resumeText.value);
         }
+
+        formData.append("job_position", jobPosition.value);
+        formData.append("manual_skills", manualSkills.value);
 
         try {
           const response = await fetch(`${API_BASE_URL}/analyze`, {
@@ -410,7 +453,7 @@ Built projects using reusable components, form validation, and dashboard layouts
         resultsPanel.innerHTML = `
           <div class="score-header">
             <div>
-              <p class="eyebrow">Best Fit</p>
+              <p class="eyebrow">${result.mode === "custom" ? "Custom Target" : "Best Fit"}</p>
               <h2>${escapeHtml(result.best_role)}</h2>
               <p class="muted">${escapeHtml(result.match_label)}</p>
             </div>
@@ -421,7 +464,7 @@ Built projects using reusable components, form validation, and dashboard layouts
           </div>
 
           <div class="section-block">
-            <h3>All Role Matches</h3>
+            <h3>${result.mode === "custom" ? "Manual Skill Match" : "All Role Matches"}</h3>
             <div class="match-list">
               ${result.all_matches
                 .map(

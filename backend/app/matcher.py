@@ -54,6 +54,53 @@ def skill_in_text(skill: str, resume_text: str) -> bool:
     return all(word in normalized_resume for word in skill_words)
 
 
+def parse_manual_skills(skills_text: str) -> list[str]:
+    skills = re.split(r"[\n,;]+", skills_text)
+    cleaned_skills = []
+    seen = set()
+
+    for skill in skills:
+        cleaned_skill = " ".join(skill.strip().split())
+        skill_key = cleaned_skill.lower()
+
+        if cleaned_skill and skill_key not in seen:
+            cleaned_skills.append(cleaned_skill)
+            seen.add(skill_key)
+
+    return cleaned_skills
+
+
+def match_resume_to_custom_job(
+    resume_text: str,
+    job_position: str,
+    skills_text: str,
+) -> dict[str, Any]:
+    required_skills = parse_manual_skills(skills_text)
+
+    if not required_skills:
+        raise ValueError("Please enter at least one required skill.")
+
+    matched_skills = [skill for skill in required_skills if skill_in_text(skill, resume_text)]
+    missing_skills = [skill for skill in required_skills if skill not in matched_skills]
+    skill_score = len(matched_skills) / len(required_skills)
+    job_text = f"{job_position} {' '.join(required_skills)}"
+    text_score = cosine_similarity(resume_text, job_text)
+    keyword_score = calculate_keyword_overlap(resume_text, job_text)
+    final_score = (skill_score * 0.80) + (text_score * 0.15) + (keyword_score * 0.05)
+
+    return {
+        "id": "custom-job",
+        "title": job_position.strip() or "Custom Job Position",
+        "match_percentage": round(max(0, min(final_score * 100, 100)), 2),
+        "matched_skills": matched_skills,
+        "missing_skills": missing_skills,
+        "required_skills": required_skills,
+        "skill_score": round(skill_score * 100, 2),
+        "text_similarity": round(text_score * 100, 2),
+        "keyword_overlap": round(keyword_score * 100, 2),
+    }
+
+
 def calculate_keyword_overlap(resume_text: str, job_description: str) -> float:
     resume_tokens = set(tokenize(resume_text))
     job_tokens = set(tokenize(job_description))
@@ -94,4 +141,3 @@ def match_resume_to_jobs(resume_text: str) -> list[dict[str, Any]]:
         )
 
     return sorted(results, key=lambda result: result["match_percentage"], reverse=True)
-
